@@ -171,7 +171,7 @@ void kernel_main()
     
     */
 
-    scheduler_start();
+   // scheduler_start();
 
     while (1);
 }

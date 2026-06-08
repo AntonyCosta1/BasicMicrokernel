@@ -5,7 +5,7 @@
 #define HEAP_START 0x80400000UL
 #define HEAP_SIZE  (8 * 1024 * 1024)   // 8 MB
 
-typedef struct {
+typedef struct block{
     uint64_t size;
     int free;
     struct block *next;
