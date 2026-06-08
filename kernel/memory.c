@@ -14,6 +14,10 @@ typedef struct {
 static uint8_t *heap_base = (uint8_t*)HEAP_START;
 static block_t *free_list;
 
+uint64_t memory_total(void) {
+    return HEAP_SIZE;
+}
+
 static uint64_t align8(uint64_t size) {
     return (size + 7) & ~7ULL;
 }
@@ -44,7 +48,7 @@ void *kmalloc(uint64_t size)
         if (current->free && current->size >= size){
             //DIVIDIR O BLOCO SE SOBRAR ESPAÇO
             if (current->size >= size + sizeof(block_t)+8){
-                block_t &new_block = (block_t*)((uint8_t*)current + sizeof(block_t)+size);
+                block_t *new_block = (block_t*)((uint8_t*)current + sizeof(block_t)+size);
                 
                 new_block->size = current->size - size - sizeof(block_t);
                 new_block->free = 1;
@@ -105,7 +109,7 @@ uint64_t memory_used(void)
 
 uint64_t memory_free(void)
 {
-    uint64_t free = 0;
+    uint64_t free_mem = 0;
     block_t *current = free_list;
     
     while (current)
