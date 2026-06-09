@@ -5,7 +5,7 @@
 #define HEAP_START 0x80400000UL
 #define HEAP_SIZE  (8 * 1024 * 1024)   // 8 MB
 
-typedef struct block{
+typedef struct block{ //cabeçalho guarda o tamanho do bloco, se ela ta ocupado ou não e o ponteiro pro proximo bloco da lista encadeada -- saudades carrard
     uint64_t size;
     int free;
     struct block *next;
@@ -19,20 +19,20 @@ uint64_t memory_total(void) {
 }
 
 static uint64_t align8(uint64_t size) {
-    return (size + 7) & ~7ULL;
+    return (size + 7) & ~7ULL; // alinha as alocações em multiplo de 8 btes, evita desalinhamento e segue o riscv 64 bits
 }
 
 /*   Inicialização   */
 
 void memory_init(void)
 {
-    free_list = (block_t*)heap_base;
-    free_list->size = HEAP_SIZE - sizeof(block_t);
+    free_list = (block_t*)heap_base; // primeiro bloco começa no começo (redundante) no heap
+    free_list->size = HEAP_SIZE - sizeof(block_t); // tratar o heap todo como um bloco livre
     free_list->free = 1;
     free_list->next = 0;
 }
 
-/*   Alocador bump   */ //AGORA VAI SER FIRST FIT
+/*   Alocador bump   */ //AGORA VAI SER FIRST FIT - aloca a memoria de forma dinamica
 
 void *kmalloc(uint64_t size)
 {
@@ -45,10 +45,10 @@ void *kmalloc(uint64_t size)
 
     while (current)
     {
-        if (current->free && current->size >= size){
-            //DIVIDIR O BLOCO SE SOBRAR ESPAÇO
-            if (current->size >= size + sizeof(block_t)+8){
-                block_t *new_block = (block_t*)((uint8_t*)current + sizeof(block_t)+size);
+        if (current->free && current->size >= size){ // ENCONTRA O BLOCO VALIDO
+            
+            if (current->size >= size + sizeof(block_t)+8){ //DIVIDIR O BLOCO SE SOBRAR ESPAÇO
+                block_t *new_block = (block_t*)((uint8_t*)current + sizeof(block_t)+size); // O PONTEIRO QUE RETORNA APONTA PRA AREA, PRA VOLTAR PRO CABEÇALHO É SÓ SUBTRAIR O TAMANHO DO HEADER.
                 
                 new_block->size = current->size - size - sizeof(block_t);
                 new_block->free = 1;
@@ -81,7 +81,7 @@ void kfree(void *ptr)
     while (current && current->next){
         uint8_t *current_end = (uint8_t*)current + sizeof(block_t) + current->size;
 
-        if (current->free && current->next->free && current_end == (uint8_t*)current->next){
+        if (current->free && current->next->free && current_end == (uint8_t*)current->next){ // VE SE O BLOCO TA LIVRE, SE O PROX TA LIVRE E ELES SÃO ADJACENTES
             current->size += sizeof(block_t) + current->next->size;
             current->next = current->next->next;
         } else {

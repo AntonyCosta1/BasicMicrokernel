@@ -18,7 +18,11 @@ void task1()
 
         uart_print("Memory free: ");
         uart_print_uint(memory_free());
-        uart_print(" bytes\n\n");
+        uart_print(" bytes\n");
+
+        uart_print("Memory Total: ");
+        uart_print_uint(memory_total());
+        uart_print( "bytes\n\n");
 
         yield();
     }
@@ -36,7 +40,11 @@ void task2()
 
         uart_print("Memory free: ");
         uart_print_uint(memory_free());
-        uart_print(" bytes\n\n");
+        uart_print(" bytes\n");
+
+        uart_print("Memory Total: ");
+        uart_print_uint(memory_total());
+        uart_print( "bytes\n\n");
 
         yield();
     }
@@ -46,9 +54,9 @@ void task2()
 
 void kernel_main()
 {
-    memory_init();   // OBRIGATÓRIO
+    memory_init();   // OBRIGATÓRIO (INICIALIZAR O HEAP)
 
-    uart_print("\n=== TESTE DO HEAP ===\n");
+    uart_print("\n Teste do heap no SO \n");
 
     // Estatísticas iniciais
 
@@ -171,7 +179,7 @@ void kernel_main()
     
     */
 
-   // scheduler_start();
+   scheduler_start();
 
     while (1);
 }
