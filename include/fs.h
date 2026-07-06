@@ -10,7 +10,7 @@
 #define BLOCK_SIZE 512
 
 #define FS_FILE 1
-#define FS_DIRECTORY 2
+#define FS_DIR 2
 
 typedef struct {
     uint32_t magic;
