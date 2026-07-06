@@ -21,12 +21,12 @@ void inode_init(void)
     }
 }
 
-inode _t *inode_alloc(void)
+inode_t *inode_alloc(void)
 {
     for (uint32_t i = 0; i < MAX_INODES; i++){
         if (inode_bitmap[i] == 0) //INODE LIVRE
         {
-            inode bitmap[i] = 1; // MARCA COMO OCUPADO
+            inode_bitmap[i] = 1; // MARCA COMO OCUPADO
             inode_table[i].size = 0;
             inode_table[i].links = 1; // INICIALIZA O LINK COUNT
 

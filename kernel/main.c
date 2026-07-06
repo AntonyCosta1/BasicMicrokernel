@@ -34,9 +34,9 @@ void kernel_main()
 {
     memory_init();
 
-    uart_print("\n=== TESTE DO HEAP ===\n");
+    // uart_print("\n=== TESTE DO HEAP ===\n");
 
-    uart_print("Heap total: ");
+    /* uart_print("Heap total: ");
     uart_print_uint(memory_total());
     uart_print(" bytes\n");
 
@@ -46,7 +46,7 @@ void kernel_main()
 
     uart_print("Heap livre: ");
     uart_print_uint(memory_free());
-    uart_print(" bytes\n\n");
+    uart_print(" bytes\n\n"); */
 
     uart_print("=== TESTE TREEFS ===\n");
 
@@ -101,13 +101,15 @@ void kernel_main()
 
     uart_print("\nListagem de /home/aluno apos remover:\n");
     ls("/home/aluno");
+    uart_print("\nSe não aparecer listagem após a chamada de home aluno, é porque foi removido..");
+    
 
-    uart_print("\n=== TESTE DE TASKS ===\n");
+    //uart_print("\n=== TESTE DE TASKS ===\n");
 
-    xTaskCreate(task1, 2048, 1);
-    xTaskCreate(task2, 2048, 1);
+    // xTaskCreate(task1, 2048, 1);
+    // xTaskCreate(task2, 2048, 1);
 
-    scheduler_start();
+    // scheduler_start();
 
     while (1);
 }

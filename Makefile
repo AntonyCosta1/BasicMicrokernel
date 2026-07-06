@@ -1,5 +1,3 @@
-mkfile
-
 CROSS = riscv64-unknown-elf-
 
 CFLAGS = -march=rv64gc -mabi=lp64 \
@@ -32,5 +30,5 @@ all:
 
 	$(CROSS)ld -T linker.ld $(OBJS) -o kernel.elf
 
-	clean:
-	rm -f *.o kernel.elf
+CLEAN = rm -f *.o kernel.elf
+	
