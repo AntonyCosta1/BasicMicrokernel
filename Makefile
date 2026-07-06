@@ -31,3 +31,6 @@ all:
 	$(CROSS)gcc $(CFLAGS) -c kernel/inode.c
 
 	$(CROSS)ld -T linker.ld $(OBJS) -o kernel.elf
+
+	clean:
+	rm -f *.o kernel.elf

@@ -167,7 +167,7 @@ static int split_path(const char *path, char *parent, char *name)
         }
     }
 
-    if (last_slash == = 0)
+    if (last_slash == 0)
     {
         parent[0] = '/';  // SE O ÚLTIMO '/' FOR O PRIMEIRO CARACTERE, O PAI É A RAIZ
         parent[1] = '\0'; // TERMINA A STRING
@@ -435,7 +435,7 @@ int write(int fd, const void *buf, uint32_t size)
         return -1;
     }
 
-    const uint8_t *data = (const uint8_t *)buf;
+    const uint8_t *src = (const uint8_t *)buf;
     uint32_t bytes_written = 0;
     uint32_t block_index = 0;
 
@@ -448,7 +448,7 @@ int write(int fd, const void *buf, uint32_t size)
             }
             node->blocks[block_index] = new_block; // Atribui o novo bloco ao inode
         }
-        int8_t block_buffer[BLOCK_SIZE];
+        uint8_t block_buffer[BLOCK_SIZE];
         clear_buffer(block_buffer, BLOCK_SIZE);
 
         uint32_t remaining = size - bytes_written;
@@ -467,7 +467,7 @@ int write(int fd, const void *buf, uint32_t size)
         block_index++;
     }
 
-    node->size += bytes_written; // Atualiza o tamanho do arquivo no inode
+    node->size = bytes_written; // Atualiza o tamanho do arquivo no inode
     return bytes_written;
 }
 
@@ -493,7 +493,7 @@ int read(int fd, void *buf, uint32_t size){
 
     while (bytes_read < limit && block_index < 8){
         if (node->blocks[block_index] == 0){
-            break
+            break;
         }
 
         uint8_t block_buffer[BLOCK_SIZE];
@@ -511,8 +511,66 @@ int read(int fd, void *buf, uint32_t size){
             dst[bytes_read + i] = block_buffer[i]; // Copia os dados do buffer do bloco para o buffer de saída
         }
 
-        byters_read += to_copy;
+        bytes_read += to_copy;
         block_index++;
     }
     return bytes_read;
+}
+
+int unlink(const char *path)
+{
+    char parent[128];
+    char name[32];
+
+    if (split_path(path, parent, name) != 0)
+        return -1;
+
+    inode_t *parent_inode = path_lookup(parent);
+
+    if (parent_inode == 0)
+        return -1;
+
+    int inode_id = find_dir_entry(parent_inode, name);
+    if (inode_id < 0)
+        return -1;
+
+    inode_t *node = inode_get(inode_id);
+    if (node == 0)
+        return -1;
+
+    // LIBERA OS BLOCOS
+
+    for (int i = 0; i < 8; i++){
+        if (node->blocks[i] != 0)
+        {
+            block_free(node->blocks[i]);
+            node->blocks[i] = 0;
+        }
+    } 
+
+    // REMOVE A ENTRADA DO DIRETÓRIO
+
+    uint8_t buffer[BLOCK_SIZE];
+    for (int b = 0; b < 8; b++){
+        if (parent_inode->blocks[b] == 0)
+        {
+            continue;
+        }
+
+        block_read(parent_inode->blocks[b], buffer);
+        dir_entry_t *entryes = (dir_entry_t *)buffer;
+        int total = BLOCK_SIZE / sizeof(dir_entry_t);
+
+        for (int i = 0; i < total; i++){
+            if (entryes[i].inode == inode_id) // SE A ENTRADA DE DIRETÓRIO CORRESPONDER AO INODE A SER REMOVIDO
+            {
+                entryes[i].inode = 0;
+                entryes[i].name[0] = '\0';
+                block_write(parent_inode->blocks[b], buffer); // ESCREVE O BUFFER DE VOLTA PARA O BLOCO DO DIRETÓRIO
+                inode_free(inode_id);
+                return 0;
+            }
+        }
+    }
+    return -1;
 }
