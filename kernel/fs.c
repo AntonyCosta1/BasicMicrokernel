@@ -297,7 +297,6 @@ int mkdir(const char *path)
     // Divide o caminho em pai e nome
     if (split_path(path, parent, name) != 0)
         return -1;
-
     // Localiza o diretório pai
     inode_t *parent_inode = path_lookup(parent);
 
@@ -539,7 +538,6 @@ int unlink(const char *path)
         return -1;
 
     // LIBERA OS BLOCOS
-
     for (int i = 0; i < 8; i++){
         if (node->blocks[i] != 0)
         {
@@ -549,14 +547,12 @@ int unlink(const char *path)
     } 
 
     // REMOVE A ENTRADA DO DIRETÓRIO
-
     uint8_t buffer[BLOCK_SIZE];
     for (int b = 0; b < 8; b++){
         if (parent_inode->blocks[b] == 0)
         {
             continue;
         }
-
         block_read(parent_inode->blocks[b], buffer);
         dir_entry_t *entryes = (dir_entry_t *)buffer;
         int total = BLOCK_SIZE / sizeof(dir_entry_t);
