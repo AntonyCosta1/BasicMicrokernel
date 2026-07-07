@@ -1,0 +1,42 @@
+anotações durante implementação do Fs.C
+
+VARIAVEIS PRINCIPAIS - as variáveis iniciais aqui trazem as informações globais do FS (assinatura, quantidade de blocos, quantidade de inodes e tamanho dos blocos) -- SUPER BLOCO
+E A ROOT_INODE GUARDA O NODE RAIZ, NO CASO REPRESENTA O DIRETORIO.
+
+
+FOI CRIADO FUNÇÕES AUXILIARES - SRT'S -> CMP/LEN/CPY E O CLEARBUFFER
+no caso como ta em microkernel não precisa depender diretamente da biblioteca padrão do C. Dai a gente implementou essas funções de comparação das strings, calcular o tamanho delas, copiar as strings e limpeza dos buffers.
+
+
+FUNÇÃO DO INODE NUMBER -> Essa função calcula o numero do inode a partir do ponteiros, no caso os índices estõa em uma tabela sequencial, só subtrair o endereço do primeiro para o endereço do atual e assim descobre o índice do inode.
+
+FUNÇÃO DO FIND_DIR_ENTRY -> Aqui o conteúdo dos diretórios é uma lista de entradas, cada entrada tem um nome e o inode. Essa função aqui le os blocos e procura uma entrada com o nome passado.
+No caso se eu for lá e procurar por /home, o sistema procura no diretório raiz e procura uma entrada com esse nome.
+
+FUNÇÃO ADD_DIR_ENTRY -> Essa função adiciona arquivo ou diretório dentro de outro diretório, procura primeiro uma posição livre no bloco, salva o nome e numero do inode e depois salva o bloco atualizado.
+
+SPLIT_PATH -> Essa função aqui separa o caminho em duas partes: o pai e o nome do arquivo ou diretório que vai ser criado ou retirado. É feito pq para criar o arquivo antes tem que encontrar o pai.
+
+FUNÇÃO FS_INIT -> Essa aqui inicializa o FS. Primeiro ela configura o superbloco, inicia os blocos e inodes.
+Depois cria o inode raiz e define ele como dir, depois cria a estrutura que o viel pede. (home / tmp / bin)
+
+PATH_LOOKUP -> Essa função transforma o caminho absoluto em um inode, começa na raiz e percorre cada parte do caminho. Exemplo: /home/aluno/notas.txt
+Nesse caso, ele procura o home na raiz e depois procura o aluno dentro do home, no final procura o notas.txt.
+
+MKDIR -> O famoso mkdir do Linux (deus o livre), cria um diretório (make dir). separa o caminho com split path, encontra o diretório pai, verifica se já tem algo com o nome igual,  aloca o inode, aloca o bloco do diretório e adiciona a entrada.
+
+CREATE -> Essa função cria o arquivo vazio, parece o mkdir mas é mais pra um tipo de arquivo (file). Retorna o numero do inode (o descritor do arquivo). A gente não implementou tabela de descritor pq no trabalho não pedia open e close, dai usamos o índice mesmo como (FD)
+
+LS -> Esse recebe o caminho, entra o inode, ve se é diretório e printa as entradas validas nos blocos desse diretório.
+
+WRITE -> Esse aqui recebe o descritor, que no caso é o numero do inode.
+Ve se o inode é um arquivo, aloca os blocos necessários, copia os dados do bugffer pro bloco e atualiza o tamanho do arquivo.
+
+READ -> É o processo inverso do write, usa a lista de blocos, le os blocos do disco e copia os dados pro buffer recebido.
+
+UNLINK -> O unlink é pra remover o arquivo, ele encontra o inode pelo caminho, libera todos os blocos usados nesse arquivo, remove a entrada do dir pai e depois libera para reuso.
+Daria pra impedir que o unlink removesse o diretório, mas não soube implementar.
+
+Na nossa implementação do treefs tem o superbloco, bitmap de blocos e inodes, tabela de inodes, disco virtual, diretório hierárquico, resolução de caminho e operação básica de criação de arquivo e diretório, lista, escreve, le e remove.
+Usa inode pra guardar os metadados e diretório pra ligar nome aos inodes.
+

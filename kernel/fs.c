@@ -4,7 +4,7 @@
 #include "inode.h"
 #include "uart.h"
 
-static superblock_t superblock;
+static superblock_t superblock; // GUARDA ASSINATURA, QTD DE BLOCOS, QTD DE INODES E TAMANHO DO BLOCO
 static uint32_t root_inode_id = 0; // ID DO INODE RAIZ
 
 static int strcmp_local(const char *a, const char *b) // FUNÇÃO PARA COMPARAR DUAS STRINGS
@@ -64,7 +64,7 @@ static int find_dir_entry(inode_t *dir, const char *name)
         return -1; // SE O INODE NÃO FOR UM DIRETÓRIO, RETORNA -1
     }
 
-    uint8_t buffer[BLOCK_SIZE];
+    uint8_t buffer[BLOCK_SIZE]; // BUFFER PARA LER OS BLOCOS DO DIRETÓRIO
     for (int b = 0; b < 8; b++)
     {
         if (dir->blocks[b] == 0)
